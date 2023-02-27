@@ -10,23 +10,28 @@ interface Task {
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskInputError, setNewTaskInputError] = useState(false)
 
   function handleCreateNewTask() {
       // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
 
-      setTasks([
-        ...tasks,
-        {
-          id: crypto.randomUUID(),
-          title: '',
-          isComplete: false
-        }
-      ])
-    }
-    console.log(handleCreateNewTask)
-    setTasks([...tasks])
-  
 
+
+      const newTask = {
+        id: crypto.randomUUID(),
+        title: newTaskTitle,
+        isComplete: false
+      }
+      if(!newTaskTitle.trim().length) {
+        setNewTaskInputError(true)
+        return 
+      }
+      setTasks([...tasks, newTask ])
+      
+      console.log(handleCreateNewTask)
+      
+    }
+  
   function handleToggleTaskCompletion(id: string) {
     // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
     const checkTask = tasks.map(tasks => {
@@ -34,6 +39,7 @@ export function TaskList() {
         return {
           ...tasks,
           isComplete: !tasks.isComplete,
+          
         }
       }
       return tasks
@@ -47,14 +53,12 @@ export function TaskList() {
       // Remova uma task da listagem pelo ID
       const removeTasks = tasks.filter(tasks => tasks.id != idTasks);
       setTasks(removeTasks);
-    
     }
 
   return (
     <section className="task-list container">
       <header>
         <h2>Minhas tasks</h2>
-
 
         <div className="input-group">
           <input
@@ -63,12 +67,11 @@ export function TaskList() {
             onChange={(e) => setNewTaskTitle(e.target.value)}
             required
           />
-          <button type="submit" data-testid="add-task-button" onSubmit={handleCreateNewTask}>
+          <button type="submit" data-testid="add-task-button" onClick={()=>{handleCreateNewTask()}}>
             <FiCheckSquare size={16} color="#fff" />
           </button>
         </div>
       </header>
-
 
       <main>
         <ul>
@@ -86,7 +89,6 @@ export function TaskList() {
                 </label>
                 <p>{task.title}</p>
               </div>
-
 
               <button type="button" data-testid="remove-task-button" onClick={() => handleRemoveTask(task.id)}>
                 <FiTrash size={16} />
